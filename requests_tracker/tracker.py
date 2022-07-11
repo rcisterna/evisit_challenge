@@ -1,5 +1,6 @@
 class Tracker:
     """Static class that tracks handled requests."""
+
     _counts_by_addr = {}  # hash table with requests count, indexed by ip address
     _addrs_by_count = {}  # hash table with list of addresses, indexed by requests count
     _sorted_counts = []  # list with ordered requests count in descending order
@@ -16,7 +17,8 @@ class Tracker:
         """
         count = Tracker._counts_by_addr.get(ip, 0)
         if count > 0:
-            Tracker._addrs_by_count[count].pop(ip)
+            addrs = Tracker._addrs_by_count[count]
+            addrs.remove(ip)
             if not Tracker._addrs_by_count[count]:
                 Tracker._addrs_by_count.pop(count)
 
