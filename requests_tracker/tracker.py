@@ -49,7 +49,7 @@ class Tracker:
             truncate = None
             if len_addrs + count > 100:
                 truncate = 100 - len_addrs
-            to_append = Tracker._sorted_counts[count]
+            to_append = Tracker._addrs_by_count[count]
             addrs.extend(to_append[:truncate])
         return addrs
 
