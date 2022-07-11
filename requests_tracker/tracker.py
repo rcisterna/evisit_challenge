@@ -1,8 +1,8 @@
 class Tracker:
     """Static class that tracks handled requests."""
-    reqs_by_addr = {}  # hash table with requests count, indexed by ip address
-    addrs_by_req = {}  # hash table with list of addresses, indexed by requests count
-    sorted_req_counts = []  # list with ordered requests count in descending order
+    _counts_by_addr = {}  # hash table with requests count, indexed by ip address
+    _addrs_by_count = {}  # hash table with list of addresses, indexed by requests count
+    _sorted_counts = []  # list with ordered requests count in descending order
 
     @staticmethod
     def request_handled(ip: str):
@@ -14,20 +14,20 @@ class Tracker:
         The calling code is outside the scope of this project.
         Since it is being called very often, this function needs to have a fast runtime.
         """
-        reqs_count = Tracker.reqs_by_addr.get(ip, 0)
-        if reqs_count > 0:
-            Tracker.addrs_by_req[reqs_count].pop(ip)
-            if not Tracker.addrs_by_req[reqs_count]:
-                Tracker.addrs_by_req.pop(reqs_count)
+        count = Tracker._counts_by_addr.get(ip, 0)
+        if count > 0:
+            Tracker._addrs_by_count[count].pop(ip)
+            if not Tracker._addrs_by_count[count]:
+                Tracker._addrs_by_count.pop(count)
 
-        reqs_count += 1
-        Tracker.reqs_by_addr[ip] = reqs_count
-        if reqs_count in Tracker.addrs_by_req:
-            Tracker.addrs_by_req[reqs_count].append(ip)
+        count += 1
+        Tracker._counts_by_addr[ip] = count
+        if count in Tracker._addrs_by_count:
+            Tracker._addrs_by_count[count].append(ip)
         else:
-            Tracker.addrs_by_req[reqs_count] = [ip]
+            Tracker._addrs_by_count[count] = [ip]
 
-        Tracker.sorted_req_counts = sorted(Tracker.addrs_by_req.keys(), reverse=True)
+        Tracker._sorted_counts = sorted(Tracker._addrs_by_count.keys(), reverse=True)
 
     @staticmethod
     def top100():
@@ -42,15 +42,15 @@ class Tracker:
         requirement. Don’t forget to satisfy this requirement.
         """
         addrs = []
-        for counts in Tracker.sorted_req_counts:
+        for count in Tracker._sorted_counts:
             len_addrs = len(addrs)
             if len_addrs == 100:
                 break
             truncate = None
-            if len_addrs + counts > 100:
+            if len_addrs + count > 100:
                 truncate = 100 - len_addrs
-            new_addrs = Tracker.sorted_req_counts[counts]
-            addrs.extend(new_addrs[:truncate])
+            to_append = Tracker._sorted_counts[count]
+            addrs.extend(to_append[:truncate])
         return addrs
 
     @staticmethod
@@ -60,6 +60,6 @@ class Tracker:
 
         Called at the start of each day to forget about all IP addresses and tallies.
         """
-        Tracker.reqs_by_addr.clear()
-        Tracker.addrs_by_req.clear()
-        Tracker.sorted_req_counts.clear()
+        Tracker._counts_by_addr.clear()
+        Tracker._addrs_by_count.clear()
+        Tracker._sorted_counts.clear()
